@@ -4,7 +4,7 @@ module PackageManager
   class Base
     # This class is responsible for taking a project and a list of ApiVersions (aka raw versions mapped
     # to a common set off attributes), and create Versions for the Project in the database, in a single
-    # query. Because we're using +upsert_all()+, Versions that already exist will just be updated. 
+    # query. Because we're using +upsert_all()+, Versions that already exist will just be updated.
     # This single query avoids all the N+1s involved in a regular batch insert of Versions that we did in the past.
     class BulkVersionUpdater
       def initialize(db_project:, api_versions:, repository_source_name:)

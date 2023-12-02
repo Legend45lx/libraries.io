@@ -129,10 +129,10 @@ module PackageManager
 
       if self::HAS_VERSIONS
         api_versions = if sync_version == :all
-                                     versions_as_version_objects(raw_project, db_project.name)
-                                   else
-                                     [one_version_as_version_object(raw_project, sync_version)]
-                                   end
+                         versions_as_version_objects(raw_project, db_project.name)
+                       else
+                         [one_version_as_version_object(raw_project, sync_version)]
+                       end
 
         BulkVersionUpdater.new(
           db_project: db_project,
