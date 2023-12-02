@@ -128,15 +128,19 @@ module PackageManager
       db_project = ensure_project(mapped_project, reformat_repository_url: sync_version == :all)
 
       if self::HAS_VERSIONS
-        versions_to_upsert_attrs = if sync_version == :all
+        api_versions = if sync_version == :all
                                      versions_as_version_objects(raw_project, db_project.name)
                                    else
                                      [one_version_as_version_object(raw_project, sync_version)]
                                    end
 
-        BulkVersionUpdater.new(db_project: db_project, api_versions: api_versions).run!
+        BulkVersionUpdater.new(
+          db_project: db_project,
+          api_versions: api_versions,
+          repository_source_name: self::HAS_MULTIPLE_REPO_SOURCES ? [self::REPOSITORY_SOURCE_NAME] : nil
+        ).run!
 
-        remove_missing_versions(db_project, versions_to_upsert_attrs.pluck(:number)) if sync_version == :all
+        remove_missing_versions(db_project, api_versions.map(&:version_number)) if sync_version == :all
         # TODO: handle deprecation here too
       end
 
