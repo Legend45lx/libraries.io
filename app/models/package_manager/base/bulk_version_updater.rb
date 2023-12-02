@@ -37,6 +37,9 @@ module PackageManager
         Version.upsert_all(
           attrs,
           # handles merging any existing repository_sources with new repository_source (see specs for table tests)
+          # note that timestamps act slightly differently: we'll use the provided updated_at here if it exists, which 
+          # might update updated_at even if no attributes changed. Whereas normally with AR's dirty attributes, timestamps
+          # wouldn't change unless other attributes had changed during the save.
           on_duplicate: Arel.sql(%!
             status = EXCLUDED.status,
             runtime_dependencies_count = EXCLUDED.runtime_dependencies_count,
