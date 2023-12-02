@@ -11,7 +11,7 @@ describe PackageManager::Base::BulkVersionUpdater do
         PackageManager::Base::ApiVersion.new(
           version_number: v,
           published_at: idx.days.ago,
-          runtime_dependencies_count: nil,
+          runtime_dependencies_count: 18,
           original_license: "MIT",
           repository_sources: nil,
           status: nil
@@ -89,10 +89,28 @@ describe PackageManager::Base::BulkVersionUpdater do
         expect(version.reload.published_at).to be_within(1.second).of(1.day.ago)
       end
 
+      it "should update updated_at" do
+        version.update_column(:updated_at, 42.days.ago)
+        bulk_version_updater.run!
+        expect(version.reload.updated_at).to be_within(1.second).of(Time.now)
+      end
+
+      it "should update runtime_dependencies_count" do
+        version.update_column(:runtime_dependencies_count, 3)
+        bulk_version_updater.run!
+        expect(version.reload.runtime_dependencies_count).to eq(18)
+      end
+
       it "should update original_license" do
         version.update_column(:original_license, "FOO")
         bulk_version_updater.run!
         expect(version.reload.original_license).to eq("MIT")
+      end
+
+      it "should update status" do
+        version.update_column(:status, "REMOVED")
+        bulk_version_updater.run!
+        expect(version.reload.status).to eq(nil)
       end
 
       {
