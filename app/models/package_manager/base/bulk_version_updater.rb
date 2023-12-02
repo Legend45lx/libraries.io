@@ -14,6 +14,8 @@ module PackageManager
       end
 
       def run!
+        return if @api_versions.empty?
+
         # create synthetic versions without saving them, so we can get their attributes
         attrs = @api_versions
           .map { |api_version| Version.new(api_version.to_version_model_attributes.merge(project: @db_project)) }
@@ -32,13 +34,10 @@ module PackageManager
         # TODO: we could do this in batches if performance does not scale well with # of versions.
         Version.upsert_all(
           attrs,
-          # handles merging any existing repository_sources with new repository_source:
-          #   Prev       New       Result
-          #   ["Main"]  ["Maven"]  ["Main", "Maven"]
-          #   [nil]     ["Maven"]  ["Maven"]
-          #   ["Main"]  [nil]      ["Main"]
-          #   [nil]     [nil]      nil
+          # handles merging any existing repository_sources with new repository_source (see specs for table tests)
           on_duplicate: Arel.sql(%!
+            original_license = EXCLUDED.original_license,
+            published_at = EXCLUDED.published_at,
             repository_sources = (CASE
             WHEN (versions.repository_sources IS NULL AND EXCLUDED.repository_sources IS NULL)
               THEN NULL
