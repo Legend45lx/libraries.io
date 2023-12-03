@@ -486,7 +486,7 @@ describe PackageManager::Pypi do
 
           actual_not_removed_version = Project.first.versions.find_by(number: not_removed_version)
           expect(actual_not_removed_version.status).to be nil
-          # note that the updated_at will change because we're running this version through
+          # NOTE: that the updated_at will change because we're running this version through
           # BulkVersionUpdater and it touches updated_at even if the given version hasn't changed.
           expect(actual_not_removed_version.updated_at).to be_within(1.minute).of(Time.zone.now)
         end
@@ -501,7 +501,7 @@ describe PackageManager::Pypi do
 
           actual_removed_version = Project.first.versions.find_by(number: removed_version)
           expect(actual_removed_version.status).to eq("Removed")
-          # note that the updated_at will change because we're running this version through
+          # NOTE: that the updated_at will change because we're running this version through
           # BulkVersionUpdater and it touches updated_at even if the given version hasn't changed.
           expect(actual_removed_version.updated_at).to be_within(1.minute).of(Time.zone.now)
         end
@@ -532,7 +532,7 @@ describe PackageManager::Pypi do
 
           actual_not_removed_version = Project.first.versions.find_by(number: not_removed_version)
           expect(actual_not_removed_version.status).to eq("Deprecated")
-          # note that the updated_at will change because we're running this version through
+          # NOTE: that the updated_at will change because we're running this version through
           # BulkVersionUpdater and it touches updated_at even if the given version hasn't changed.
           expect(actual_not_removed_version.updated_at).to be_within(1.minute).of(Time.zone.now)
         end
