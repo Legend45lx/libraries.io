@@ -45,7 +45,9 @@ class Version < ApplicationRecord
   has_many :dependencies, dependent: :delete_all
   has_many :runtime_dependencies, -> { where kind: %w[runtime normal] }, class_name: "Dependency"
 
-  # NB: these are simulated in BulkVersionUpdater, so update that class if these change
+  ##############################################################################################
+  # NB: callbacks are run manually in bulk_after_create_commit, so keep that class in sync with these.
+  ##############################################################################################
   before_save :update_spdx_expression
   after_create_commit :send_notifications_async,
                       :update_repository_async,
@@ -56,6 +58,8 @@ class Version < ApplicationRecord
   # This method is utlized by BulkVersionUpdater because it does a bulk import with upsert_all() without running callbacks,
   # so we have to run them manually. This assumes all Version records are attached to the same Project.
   def self.bulk_after_create_commit(versions, project)
+    return if versions.empty?
+
     versions
       .each do |newly_inserted_version|
         raise "All records must be from the same project with id #{project.id}" unless newly_inserted_version.project == project
