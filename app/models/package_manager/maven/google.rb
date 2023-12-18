@@ -116,7 +116,7 @@ class PackageManager::Maven::Google < PackageManager::Maven::Common
             repository_source_name: self::HAS_MULTIPLE_REPO_SOURCES ? [self::REPOSITORY_SOURCE_NAME] : nil
           ).run!
         rescue Faraday::ConnectionFailed
-          if !retried
+          unless retried
             retried = true
             retry
           end

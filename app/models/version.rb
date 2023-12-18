@@ -53,6 +53,28 @@ class Version < ApplicationRecord
                       :log_version_creation,
                       :save_project
 
+  # This method is utlized by BulkVersionUpdater because it does a bulk import with upsert_all() without running callbacks,
+  # so we have to run them manually. This assumes all Version records are attached to the same Project.
+  def self.bulk_after_create_commit(versions, project)
+    versions
+      .each do |newly_inserted_version|
+        raise "All records must be from the same project with id #{project.id}" unless newly_inserted_version.project == project
+
+        # from Version#after_create_commit
+        newly_inserted_version.send_notifications_async
+        newly_inserted_version.log_version_creation
+      end
+
+    # these Version#after_create_commits are project-scoped, so only need to run them on the first version
+    first_version = versions.first
+    first_version.update_repository_async
+    first_version.update_project_tags_async
+
+    # normally counter_culture does this
+    project.update_column(:versions_count, project.versions.count)
+    @db_project
+  end
+
   scope :newest_first, -> { order("versions.published_at DESC") }
 
   # saving the project can be expensive, so allow the ability to skip it for

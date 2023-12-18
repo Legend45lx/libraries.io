@@ -59,20 +59,10 @@ module PackageManager
           unique_by: %i[project_id number]
         )
 
+        newly_inserted_versions = @db_project.versions.where.not(id: existing_version_ids)
+
         # run callbacks manually since upsert_all doesn't run callbacks.
-        @db_project
-          .versions
-          .where.not(id: existing_version_ids)
-          .each do |newly_inserted_version|
-            # from Version#after_create_commit
-            newly_inserted_version.send_notifications_async
-            newly_inserted_version.log_version_creation
-          end
-          # these Version#after_create_commits are project-scoped, so only need to run them on the first version
-          .first
-          &.tap(&:update_repository_async)
-          &.tap(&:update_project_tags_async)
-        @db_project.update_column(:versions_count, @db_project.versions.count) # normally counter_culture does this
+        Version.bulk_after_create_commit(newly_inserted_versions, @db_project)
       end
     end
   end
