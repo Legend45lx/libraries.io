@@ -104,8 +104,6 @@ class PackageManager::Maven::Google < PackageManager::Maven::Common
 
         db_project = ensure_project(mapped_project, reformat_repository_url: true)
 
-        pp "added project #{name}"
-
         api_versions = version_numbers
           .map { |version_number| one_version_for_name(version_number, name) }
           .map { |mapped_version| version_hash_to_version_object(mapped_version) }
@@ -118,6 +116,10 @@ class PackageManager::Maven::Google < PackageManager::Maven::Common
             repository_source_name: self::HAS_MULTIPLE_REPO_SOURCES ? [self::REPOSITORY_SOURCE_NAME] : nil
           ).run!
         rescue Faraday::ConnectionFailed
+          if !retried
+            retried = true
+            retry
+          end
           retry unless retried
           StructuredLog.capture(
             "GOOGLE_MAVEN_VERSION_UPSERT_FAILURE",
