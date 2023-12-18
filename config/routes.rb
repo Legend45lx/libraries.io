@@ -70,6 +70,7 @@ Rails.application.routes.draw do
     get "/:platform/:name/dependent_repositories", to: "projects#dependent_repositories", constraints: { platform: PLATFORM_CONSTRAINT, name: PROJECT_CONSTRAINT }
     get "/:platform/:name/dependents", to: "projects#dependents", constraints: { platform: PLATFORM_CONSTRAINT, name: PROJECT_CONSTRAINT }
     get "/:platform/:name/tree", to: "tree#show", constraints: { platform: PLATFORM_CONSTRAINT, name: PROJECT_CONSTRAINT }, as: :tree
+    get "/:platform/:name/sync", to: "projects#sync", constraints: { platform: PLATFORM_CONSTRAINT, name: PROJECT_CONSTRAINT }, as: :sync
     get "/:platform/:name", to: "projects#show", constraints: { platform: PLATFORM_CONSTRAINT, name: PROJECT_CONSTRAINT }
   end
 
@@ -194,8 +195,8 @@ Rails.application.routes.draw do
   get "/privacy", to: "pages#privacy", as: :privacy
   get "/terms", to: "pages#terms", as: :terms
   get "/compatibility", to: "pages#compatibility", as: :compatibility
-  get "/data", to: "pages#data", as: :data
-  get "/open-data", to: redirect("/data")
+  get "/data", to: redirect("/")
+  get "/open-data", to: redirect("/")
 
   post "/hooks/package", to: "hooks#package"
 
