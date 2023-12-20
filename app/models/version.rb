@@ -46,7 +46,7 @@ class Version < ApplicationRecord
   has_many :runtime_dependencies, -> { where kind: %w[runtime normal] }, class_name: "Dependency"
 
   ##############################################################################################
-  # NB: callbacks are run manually in bulk_after_create_commit, so keep that class in sync with these.
+  # NB: callbacks are run manually in bulk_after_create_commit, so keep that method in sync with these.
   ##############################################################################################
   before_save :update_spdx_expression
   after_create_commit :send_notifications_async,
