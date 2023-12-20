@@ -63,6 +63,8 @@ module PackageManager
 
         # run callbacks manually since upsert_all doesn't run callbacks.
         Version.bulk_after_create_commit(newly_inserted_versions, @db_project)
+
+        self
       end
     end
   end

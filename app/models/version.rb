@@ -76,7 +76,6 @@ class Version < ApplicationRecord
 
     # normally counter_culture does this
     project.update_column(:versions_count, project.versions.count)
-    @db_project
   end
 
   scope :newest_first, -> { order("versions.published_at DESC") }
